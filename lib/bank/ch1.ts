@@ -1,0 +1,242 @@
+import type { Question } from "../types";
+import { mc, num, tf } from "./helpers";
+
+type L = { intro: string; questions: Question[] };
+
+export const ch1: Record<number, L> = {
+  // Bài 1. Ôn tập các số đến 100 000
+  1: {
+    intro:
+      "Số có năm chữ số gồm các hàng: chục nghìn, nghìn, trăm, chục, đơn vị. Muốn so sánh, hãy so sánh số chữ số trước, rồi so từng hàng từ trái sang phải.",
+    questions: [
+      num("Viết số: ba mươi sáu nghìn năm trăm mười lăm.", 36515),
+      num("Viết số: sáu mươi mốt nghìn không trăm ba mươi tư.", 61034),
+      num("Viết số: bảy nghìn chín trăm bốn mươi mốt.", 7941),
+      num("Viết số: hai mươi nghìn tám trăm linh chín.", 20809),
+      num("Viết số gồm 4 chục nghìn, 2 nghìn, 5 trăm và 3 chục.", 42530),
+      num("Viết số gồm 8 nghìn, 8 trăm, 8 chục và 8 đơn vị.", 8888),
+      num("Viết số gồm 5 chục nghìn, 7 trăm, 1 chục và 4 đơn vị.", 50714),
+      num("Viết số gồm 9 chục nghìn, 4 nghìn và 5 đơn vị.", 94005),
+      mc("Số 61 034 đọc là:", "sáu mươi mốt nghìn không trăm ba mươi tư", ["sáu mươi mốt nghìn ba mươi tư", "sáu mươi nghìn một trăm ba mươi tư", "sáu nghìn một trăm ba mươi tư"]),
+      num("Số ?  6 825 = 6 000 + 800 + 20 + ?", 5),
+      num("Số ?  33 471 = 30 000 + 3 000 + ? + 70 + 1", 400),
+      num("Số ?  75 850 = 70 000 + 5 000 + 800 + ?", 50),
+      num("Số ?  86 209 = 80 000 + 6 000 + ? + 9", 200),
+      num("Số ?  17 595; 17 596; 17 597; ?; 17 599. Số còn thiếu là số nào?", 17598),
+      num("Số ?  30 000; 40 000; ?; 60 000. Số còn thiếu là số nào?", 50000),
+      num("Số liền trước của 42 135 là số nào?", 42134),
+      num("Số liền sau của 80 000 là số nào?", 80001),
+      num("Số liền sau của 99 999 là số nào?", 100000),
+      mc("Chọn dấu thích hợp: 9 897 ? 10 000", "<", [">", "="]),
+      mc("Chọn dấu thích hợp: 68 534 ? 68 499", ">", ["<", "="], "Cùng có 5 chữ số; hàng nghìn bằng nhau, hàng trăm: 5 > 4."),
+      mc("Chọn dấu thích hợp: 34 000 ? 33 979", ">", ["<", "="]),
+      mc("Chọn dấu thích hợp: 8 563 ? 8 000 + 500 + 60 + 3", "=", ["<", ">"]),
+      mc("Chọn dấu thích hợp: 45 031 ? 40 000 + 5 000 + 100 + 30", "<", [">", "="], "45 031 < 45 130."),
+      mc("Số bé nhất trong các số 20 107, 19 482, 15 999, 18 700 là:", 15999, [20107, 19482, 18700]),
+      mc("Số nào dưới đây có chữ số hàng trăm là 8?", 39825, [57680, 48954, 84273]),
+      mc("Số dân của một xã là 12 967 người. Làm tròn số dân đến hàng nghìn là:", 13000, [12900, 12000, 12960]),
+      num("Số ?  6 000 + 500 + 40 + ? = 6 547. Số thích hợp là số nào?", 7),
+      num("Số ?  30 000 + ? + 800 + 2 = 35 802. Số thích hợp là số nào?", 5000),
+      num("Số ?  50 000 + ? + 30 + 8 = 50 738. Số thích hợp là số nào?", 700),
+      num("Số ?  ? + 6 000 + 40 + 1 = 96 041. Số thích hợp là số nào?", 90000),
+      mc(
+        "Số liều vắc-xin tiêm được: Thứ Hai 36 785, Thứ Ba 35 952, Thứ Tư 37 243, Thứ Năm 29 419. Ngày nào tiêm được nhiều liều nhất?",
+        "Thứ Tư",
+        ["Thứ Hai", "Thứ Ba", "Thứ Năm"],
+      ),
+      mc(
+        "Số liều vắc-xin tiêm được: Thứ Hai 36 785, Thứ Ba 35 952, Thứ Tư 37 243, Thứ Năm 29 419. Ngày nào tiêm được ít liều nhất?",
+        "Thứ Năm",
+        ["Thứ Hai", "Thứ Ba", "Thứ Tư"],
+      ),
+    ],
+  },
+
+  // Bài 2. Ôn tập các phép tính trong phạm vi 100 000
+  2: {
+    intro:
+      "Cộng, trừ, nhân, chia các số trong phạm vi 100 000: đặt tính thẳng hàng rồi tính từ phải sang trái. Biểu thức có ngoặc thì tính trong ngoặc trước; có nhân, chia và cộng, trừ thì nhân, chia trước.",
+    questions: [
+      num("Tính nhẩm: 8 000 + 7 000 = ?", 8000 + 7000),
+      num("Tính nhẩm: 16 000 – 9 000 = ?", 16000 - 9000),
+      num("Tính nhẩm: 25 000 + 30 000 = ?", 25000 + 30000),
+      num("Tính nhẩm: 46 000 + 4 000 + 9 000 = ?", 46000 + 4000 + 9000),
+      num("Tính nhẩm: 73 000 – 3 000 – 50 000 = ?", 73000 - 3000 - 50000),
+      num("Tính nhẩm: 32 000 + 5 000 – 17 000 = ?", 32000 + 5000 - 17000),
+      num("Đặt tính rồi tính: 8 254 + 6 392 = ?", 8254 + 6392),
+      num("Đặt tính rồi tính: 36 073 – 847 = ?", 36073 - 847),
+      num("Đặt tính rồi tính: 58 623 + 25 047 = ?", 58623 + 25047),
+      num("Đặt tính rồi tính: 74 528 – 16 240 = ?", 74528 - 16240),
+      num("Tính giá trị của biểu thức: 57 670 – (29 653 – 2 653) = ?", 57670 - (29653 - 2653)),
+      num("Tính giá trị của biểu thức: 16 000 + 8 140 + 2 760 = ?", 16000 + 8140 + 2760),
+      num(
+        "Giá một hộp bút là 16 500 đồng. Giá một ba lô học sinh nhiều hơn giá một hộp bút là 62 500 đồng. Mẹ mua cho An một hộp bút và một ba lô. Mẹ phải trả bao nhiêu đồng?",
+        16500 + (16500 + 62500),
+        "Giá ba lô: 16 500 + 62 500 = 79 000 (đồng). Tổng tiền: 16 500 + 79 000 = 95 500 (đồng).",
+        "đồng",
+      ),
+      mc("Phép tính nào có cùng kết quả với 80 000 : 2?", "5 000 × 8", ["6 000 × 4", "90 000 : 3", "20 000 × 2"], "80 000 : 2 = 40 000 = 5 000 × 8."),
+      num("Đặt tính rồi tính: 5 071 × 9 = ?", 5071 * 9),
+      num("Đặt tính rồi tính: 17 218 × 4 = ?", 17218 * 4),
+      num("Đặt tính rồi tính: 56 472 : 8 = ?", 56472 / 8),
+      num("Đặt tính rồi tính: 91 503 : 7 = ? (chỉ ghi thương)", Math.floor(91503 / 7), "91 503 : 7 = 13 071 (dư 6).", undefined),
+      num("Có 4 xe ô tô, mỗi xe chở 4 500 kg gạo, chia đều cho 5 xã. Mỗi xã nhận được bao nhiêu ki-lô-gam gạo?", (4 * 4500) / 5, "4 × 4 500 = 18 000 kg; 18 000 : 5 = 3 600 kg.", "kg"),
+      num("Tính giá trị của biểu thức: 6 000 × 5 : 3 = ?", (6000 * 5) / 3),
+      num("Tính giá trị của biểu thức: 13 206 × (36 : 9) = ?", 13206 * 4),
+      mc("Tổng của 53 640 và 8 290 là:", "61 930", ["61 830", "51 930", "60 930"]),
+      mc("Hiệu của 68 497 và 35 829 là:", "32 668", ["31 668", "32 568", "32 678"]),
+      mc("Tích của 29 073 và 3 là:", "87 219", ["67 219", "87 019", "87 291"]),
+      mc("Thực hiện phép tính 54 658 : 9 được:", "thương là 6 073 và số dư là 1", ["thương là 673 và số dư là 1", "thương là 6 072 và số dư là 10", "thương là 672 và số dư là 1"]),
+      num("Tháng Một nhà máy sản xuất 12 960 sản phẩm. Tháng Hai số sản phẩm giảm đi 2 lần so với tháng Một. Tháng Hai sản xuất bao nhiêu sản phẩm?", 12960 / 2, undefined, "sản phẩm"),
+      num("Tính giá trị của biểu thức: (54 000 – 6 000) : 8 = ?", (54000 - 6000) / 8),
+      num("Tính giá trị của biểu thức: 43 680 – 7 120 × 5 = ?", 43680 - 7120 * 5),
+      num("Cửa hàng nhập về 4 050 quyển sách tham khảo. Số sách giáo khoa nhập về gấp 5 lần số sách tham khảo. Cửa hàng nhập về tất cả bao nhiêu quyển sách?", 4050 + 4050 * 5, "Sách giáo khoa: 4 050 × 5 = 20 250; tổng: 4 050 + 20 250 = 24 300.", "quyển"),
+    ],
+  },
+
+  // Bài 3. Số chẵn, số lẻ
+  3: {
+    intro:
+      "Số chẵn là số chia hết cho 2, có chữ số tận cùng là 0, 2, 4, 6, 8. Số lẻ là số không chia hết cho 2, có chữ số tận cùng là 1, 3, 5, 7, 9.",
+    questions: [
+      mc("Số nào dưới đây là số chẵn?", 194, [315, 71, 649]),
+      mc("Trong các số sau, số nào là số chẵn?", 656, [113, 107, 649]),
+      mc("Số nào dưới đây là số lẻ?", 1909, [40, 96, 2318]),
+      mc("Trong các số sau, số nào là số lẻ?", 107, [12, 108, 72]),
+      tf("Số 2 107 là số lẻ.", true, "Số 2 107 có chữ số tận cùng là 7 nên là số lẻ."),
+      tf("Số 6 408 là số lẻ.", false, "Số 6 408 có chữ số tận cùng là 8 nên là số chẵn."),
+      num("Hai số chẵn liên tiếp hơn kém nhau mấy đơn vị?", 2, undefined, "đơn vị"),
+      num("Hai số lẻ liên tiếp hơn kém nhau mấy đơn vị?", 2, undefined, "đơn vị"),
+      num("Từ 10 đến 31 có bao nhiêu số chẵn?", 11, "Các số chẵn: 10, 12, ..., 30 – có 11 số."),
+      num("Từ 10 đến 31 có bao nhiêu số lẻ?", 11, "Các số lẻ: 11, 13, ..., 31 – có 11 số."),
+      num("Số nhà bên dãy chẵn: 116, 118, ?, ?, ?, 126. Số nhà đứng ngay sau 118 là số nào?", 120),
+      num("Số nhà bên dãy lẻ: 117, 119, ?, ?, ?, 127. Số nhà đứng ngay sau 119 là số nào?", 121),
+      num("Nêu tiếp các số chẵn để được ba số chẵn liên tiếp: 78; ?; ?. Số đứng thứ hai là:", 80),
+      num("Nêu tiếp các số lẻ để được ba số lẻ liên tiếp: 67; ?; ?. Số đứng thứ hai là:", 69),
+      num("Từ hai trong ba thẻ số 7, 4, 5 lập các số có hai chữ số. Có bao nhiêu số chẵn?", 2, "Các số chẵn: 74 và 54."),
+      num("Từ hai trong ba thẻ số 7, 4, 5 lập các số có hai chữ số. Có bao nhiêu số lẻ?", 4, "Các số lẻ: 47, 57, 45, 75."),
+      num("Số lẻ bé nhất có hai chữ số là số nào?", 11),
+      num("Số chẵn lớn nhất có ba chữ số là số nào?", 998),
+    ],
+  },
+
+  // Bài 4. Biểu thức chứa chữ
+  4: {
+    intro:
+      "Biểu thức chứa chữ là biểu thức có chữ (a, b, m, ...). Mỗi lần thay chữ bằng một số, ta tính được một giá trị của biểu thức.",
+    questions: [
+      num("Tính giá trị của biểu thức 2 + a với a = 4.", 2 + 4),
+      num("Tính giá trị của biểu thức 2 + a với a = 12.", 2 + 12),
+      num("Tính giá trị của biểu thức 40 – b với b = 15.", 40 - 15),
+      num("Tính giá trị của biểu thức 125 : m với m = 5.", 125 / 5),
+      num("Tính giá trị của biểu thức (b + 4) × 3 với b = 27.", (27 + 4) * 3),
+      num("Chu vi P của hình vuông cạnh a được tính theo công thức P = a × 4. Tính chu vi hình vuông với a = 5 cm.", 5 * 4, undefined, "cm"),
+      num("Chu vi P của hình vuông cạnh a được tính theo công thức P = a × 4. Tính chu vi hình vuông với a = 9 cm.", 9 * 4, undefined, "cm"),
+      num("Tính giá trị của biểu thức 35 + 5 × a với a = 2.", 35 + 5 * 2),
+      num("Tính giá trị của biểu thức 35 + 5 × a với a = 6.", 35 + 5 * 6, "Nhân trước, cộng sau: 5 × 6 = 30; 35 + 30 = 65."),
+      num("Tính giá trị của biểu thức 35 + 5 × a với a = 7.", 35 + 5 * 7),
+      num("Chu vi hình chữ nhật: P = (a + b) × 2. Tính P khi a = 25 cm, b = 16 cm.", (25 + 16) * 2, undefined, "cm"),
+      num("Chu vi hình chữ nhật: P = (a + b) × 2. Tính P khi a = 34 cm, b = 28 cm.", (34 + 28) * 2, undefined, "cm"),
+      num("Tính giá trị của biểu thức a + b × 2 với a = 8, b = 2.", 8 + 2 * 2),
+      num("Tính giá trị của biểu thức (a + b) : 2 với a = 15, b = 27.", (15 + 27) / 2),
+      num("Quãng đường ABCD gồm ba đoạn: AB = m, BC = 6 km, CD = n. Tính độ dài quãng đường khi m = 4 km, n = 7 km.", 4 + 6 + 7, undefined, "km"),
+      num("Quãng đường ABCD gồm ba đoạn: AB = m, BC = 6 km, CD = n. Tính độ dài quãng đường khi m = 5 km, n = 9 km.", 5 + 6 + 9, undefined, "km"),
+      num("Tính giá trị của biểu thức 12 : (3 – m) với m = 0.", 12 / 3),
+      num("Tính giá trị của biểu thức 12 : (3 – m) với m = 2.", 12 / 1),
+      mc("Trong ba giá trị m = 0; 1; 2, với m bằng bao nhiêu thì 12 : (3 – m) có giá trị lớn nhất?", 2, [0, 1, "Cả ba giá trị bằng nhau"], "m = 0 → 4; m = 1 → 6; m = 2 → 12."),
+      num("Chu vi tam giác P = a + b + c. Tính P khi a = 62 cm, b = 75 cm, c = 81 cm.", 62 + 75 + 81, undefined, "cm"),
+      num("Chu vi tam giác P = a + b + c. Tính P khi a = 50 dm, b = 61 dm, c = 72 dm.", 50 + 61 + 72, undefined, "dm"),
+      num("Với m = 9, n = 6, p = 4, tính giá trị biểu thức m – (n – p).", 9 - (6 - 4)),
+      num("Với m = 9, n = 6, p = 4, tính giá trị biểu thức m × n – m × p.", 9 * 6 - 9 * 4),
+      num("Với m = 9, n = 6, p = 4, tính giá trị biểu thức m – n + p.", 9 - 6 + 4),
+      num("Tính giá trị của biểu thức 24 : (8 – 5).", 24 / 3),
+    ],
+  },
+
+  // Bài 5. Giải bài toán có ba bước tính
+  5: {
+    intro:
+      "Bài toán có ba bước tính: đọc kĩ đề, tìm các số chưa biết ở từng bước, rồi mới tìm đáp số. Có thể vẽ sơ đồ tóm tắt để dễ nhìn.",
+    questions: [
+      num(
+        "Đội Một trồng được 60 cây, đội Hai trồng hơn đội Một 20 cây, đội Ba trồng ít hơn đội Hai 10 cây. Cả ba đội trồng được bao nhiêu cây?",
+        60 + 80 + 70,
+        "Đội Hai: 60 + 20 = 80 cây. Đội Ba: 80 – 10 = 70 cây. Tổng: 60 + 80 + 70 = 210 cây.",
+        "cây",
+      ),
+      num(
+        "Mai mua 5 quyển vở, mỗi quyển giá 8 000 đồng và 2 hộp bút chì màu, mỗi hộp giá 25 000 đồng. Mai phải trả tất cả bao nhiêu đồng?",
+        5 * 8000 + 2 * 25000,
+        "5 × 8 000 = 40 000; 2 × 25 000 = 50 000; 40 000 + 50 000 = 90 000.",
+        "đồng",
+      ),
+      num("Chia 40 quả táo vào các túi, mỗi túi 8 quả; chia 36 quả cam vào các túi, mỗi túi 6 quả. Số túi cam nhiều hơn số túi táo bao nhiêu túi?", 36 / 6 - 40 / 8, "Số túi táo: 40 : 8 = 5; số túi cam: 36 : 6 = 6; 6 – 5 = 1.", "túi"),
+      num(
+        "Đàn vịt nhà bác Đào có 1 200 con. Đàn vịt nhà bác Mận ít hơn nhà bác Đào 300 con. Đàn vịt nhà bác Cúc nhiều hơn nhà bác Đào 500 con. Cả ba nhà có tất cả bao nhiêu con vịt?",
+        1200 + (1200 - 300) + (1200 + 500),
+        undefined,
+        "con",
+      ),
+      num(
+        "Một thùng nước mắm có 120 l. Lần đầu bán 25 l, lần thứ hai bán gấp đôi số lít ở lần đầu, lần thứ ba bán 35 l. Trong thùng còn lại bao nhiêu lít nước mắm?",
+        120 - 25 - 50 - 35,
+        "Lần hai bán: 25 × 2 = 50 l. Đã bán: 25 + 50 + 35 = 110 l. Còn lại: 120 – 110 = 10 l.",
+        "lít",
+      ),
+      num(
+        "Cửa hàng ngày thứ Sáu bán 12 máy tính, ngày thứ Bảy bán nhiều hơn ngày thứ Sáu 5 máy, ngày Chủ nhật bán nhiều hơn ngày thứ Bảy 10 máy. Cả ba ngày bán được bao nhiêu máy tính?",
+        12 + 17 + 27,
+        undefined,
+        "máy",
+      ),
+      num(
+        "Một vườn có 12 cây sầu riêng. Số cây bưởi nhiều hơn số cây sầu riêng 8 cây. Số cây xoài nhiều hơn số cây bưởi 13 cây. Vườn có tất cả bao nhiêu cây?",
+        12 + 20 + 33,
+        "Bưởi: 12 + 8 = 20; xoài: 20 + 13 = 33; tổng: 12 + 20 + 33 = 65.",
+        "cây",
+      ),
+      num(
+        "Mai mua 1 bút mực giá 8 500 đồng và 5 quyển vở, mỗi quyển giá 6 500 đồng. Mai đưa cô bán hàng tờ 50 000 đồng. Cô phải trả lại Mai bao nhiêu đồng?",
+        50000 - (8500 + 5 * 6500),
+        "Tiền vở: 5 × 6 500 = 32 500. Tổng tiền: 8 500 + 32 500 = 41 000. Trả lại: 50 000 – 41 000 = 9 000.",
+        "đồng",
+      ),
+      num(
+        "Có 4 xe ô tô, mỗi xe chở 4 500 kg gạo, chia đều cho 5 xã. Mỗi xã nhận được bao nhiêu ki-lô-gam gạo?",
+        (4 * 4500) / 5,
+        "Tổng số gạo: 4 × 4 500 = 18 000 kg. Mỗi xã: 18 000 : 5 = 3 600 kg.",
+        "kg",
+      ),
+    ],
+  },
+
+  // Bài 6. Luyện tập chung
+  6: {
+    intro: "Ôn lại: số chẵn – số lẻ, so sánh và làm tròn số, bốn phép tính, tính giá trị biểu thức và giải toán lời văn.",
+    questions: [
+      mc("Trong các số 65 237, 63 794, 66 053, 59 872, các số chẵn là:", "63 794 và 59 872", ["65 237 và 66 053", "63 794 và 66 053", "65 237 và 59 872"]),
+      mc("Sắp xếp các số 65 237, 63 794, 66 053, 59 872 từ bé đến lớn, số đứng thứ hai là:", "63 794", ["65 237", "59 872", "66 053"]),
+      mc("Làm tròn số bé nhất trong các số 65 237, 63 794, 66 053, 59 872 đến hàng chục, ta được:", 59870, [59800, 59880, 60000]),
+      mc("Làm tròn số lớn nhất trong các số 65 237, 63 794, 66 053, 59 872 đến hàng chục nghìn, ta được:", 70000, [60000, 66000, 66050]),
+      num("Đặt tính rồi tính: 63 758 – 5 364 = ?", 63758 - 5364),
+      num("Đặt tính rồi tính: 37 429 + 49 235 = ?", 37429 + 49235),
+      num("Đặt tính rồi tính: 8 107 × 9 = ?", 8107 * 9),
+      num("Đặt tính rồi tính: 43 652 : 7 = ?", 43652 / 7),
+      mc("Số tiền tiết kiệm của ba bạn: 20 000 + 10 000 × 6; 5 000 × 7 + 50 000; 50 000 + 2 000 × 9. Bạn nào tiết kiệm nhiều nhất?", "Bạn có biểu thức 5 000 × 7 + 50 000", ["Bạn có biểu thức 20 000 + 10 000 × 6", "Bạn có biểu thức 50 000 + 2 000 × 9", "Ba bạn bằng nhau"], "80 000; 85 000; 68 000."),
+      num(
+        "Một trận bóng đá có 37 636 khán giả, trong đó có 9 273 khán giả nữ. Số khán giả nam nhiều hơn số khán giả nữ bao nhiêu người?",
+        37636 - 9273 - 9273,
+        "Khán giả nam: 37 636 – 9 273 = 28 363. Nhiều hơn nữ: 28 363 – 9 273 = 19 090.",
+        "người",
+      ),
+      num("Đặt tính rồi tính: 8 413 × 7 = ?", 8413 * 7),
+      num("Đặt tính rồi tính: 56 732 : 8 = ? (chỉ ghi thương)", Math.floor(56732 / 8), "56 732 : 8 = 7 091 (dư 4)."),
+      num("Tính giá trị của biểu thức a + b – 135 với a = 539 và b = 243.", 539 + 243 - 135),
+      num("Tính giá trị của biểu thức c + m × n với c = 2 370, m = 105 và n = 6.", 2370 + 105 * 6),
+      num("Mai mua 1 bút mực giá 8 500 đồng và 5 quyển vở, mỗi quyển giá 6 500 đồng. Mai đưa 50 000 đồng. Cô bán hàng phải trả lại Mai bao nhiêu đồng?", 50000 - (8500 + 5 * 6500), "Tiền vở: 32 500. Tổng: 41 000. Trả lại: 9 000.", "đồng"),
+      num("Tính giá trị của biểu thức: (13 640 – 5 537) × 8 = ?", (13640 - 5537) * 8),
+      num("Tính giá trị của biểu thức: 27 164 + 8 470 + 1 230 = ?", 27164 + 8470 + 1230),
+      num("Tuổi của chị Hoa là số lẻ bé nhất có hai chữ số. Chị Hoa bao nhiêu tuổi?", 11, undefined, "tuổi"),
+    ],
+  },
+};
