@@ -60,3 +60,31 @@ export function pointsOf(correct: number, total: number): number {
   if (!total) return 0;
   return Math.round((correct / total) * 100) / 10;
 }
+
+/** Lớp: bỏ khoảng trắng thừa, viết hoa (4a → 4A). */
+export function cleanClass(raw: string): string {
+  return (raw || "").replace(/\s+/g, " ").trim().toLocaleUpperCase("vi").slice(0, 20);
+}
+
+/** Trường: gọn khoảng trắng, viết hoa chữ cái đầu mỗi từ nhưng giữ nguyên các chữ viết tắt (THCS). */
+export function cleanSchool(raw: string): string {
+  return (raw || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .map((w) => (w ? w.charAt(0).toLocaleUpperCase("vi") + w.slice(1) : w))
+    .join(" ")
+    .slice(0, 80);
+}
+
+export function validClass(c: string): string | null {
+  if (c.length < 1) return "Em nhập lớp của em nhé (ví dụ 4A).";
+  if (c.length > 20) return "Tên lớp hơi dài, em kiểm tra lại nhé.";
+  return null;
+}
+
+export function validSchool(sch: string): string | null {
+  if (sch.length < 3) return "Em nhập tên trường của em nhé.";
+  if (sch.length > 80) return "Tên trường hơi dài, em kiểm tra lại nhé.";
+  return null;
+}

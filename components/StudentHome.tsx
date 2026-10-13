@@ -77,7 +77,7 @@ export function StudentHome({ name, progress, rank, totalStudents }: { name: str
                     <span className="meta">
                       {p ? (
                         <>
-                          <Stars n={starsOf(p.best)} /> {fmt(p.best)} điểm · {p.attempts} lần
+                          <Stars n={starsOf(p.best)} /> {fmt(p.best)} điểm · {p.attempts} lần
                         </>
                       ) : (
                         "Chưa làm"

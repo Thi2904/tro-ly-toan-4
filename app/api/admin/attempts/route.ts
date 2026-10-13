@@ -7,7 +7,10 @@ export async function GET(req: Request) {
   const rows = await getStore().adminAttempts({
     studentId: Number(p.get("student")) || undefined,
     lessonId: Number(p.get("lesson")) || undefined,
-    limit: 500,
+    className: p.get("class") || undefined,
+    school: p.get("school") || undefined,
+    bestOnly: p.get("best") === "1",
+    limit: 1000,
   });
   return ok({ attempts: rows });
 }

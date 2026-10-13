@@ -1,5 +1,5 @@
 {
-  "name": "tro-ly-hoc-toan-4",
+  "name": "sieu-sao-toan-4",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
+    "exceljs": "^4.4.0",
     "next": "^16.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

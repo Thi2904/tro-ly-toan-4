@@ -201,7 +201,9 @@ a { color: var(--blue); }
   cursor: pointer;
 }
 .tab[aria-selected="true"] { background: var(--ink); color: #fff; }
-.dob { display: grid; grid-template-columns: 1fr 1.3fr 1.4fr; gap: 8px; }
+.school-row { display: grid; grid-template-columns: 0.8fr 1.6fr; gap: 10px; }
+.dob { display: grid; grid-template-columns: 0.9fr 1.3fr 1.1fr; gap: 8px; }
+.dob .select { padding-left: 8px; padding-right: 4px; }
 
 /* ---------- student home ---------- */
 .welcome { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; padding: 32px 0 8px; }
@@ -385,8 +387,30 @@ table.data tr.click:hover td { background: var(--sun-soft); }
 .pill.lo { background: var(--red-soft); border-color: var(--red); }
 .pill.mid { background: var(--sun-soft); }
 .detail { margin-top: 18px; }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end; margin: 6px 0 14px; }
+.check { display: flex; align-items: center; gap: 8px; font-weight: 600; min-height: 48px; }
+.check input { width: 22px; height: 22px; accent-color: var(--blue); }
+.export-bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin: 10px 0 14px; }
 .empty { text-align: center; padding: 34px 12px; color: var(--muted); font-weight: 600; }
+
+/* ---------- điện thoại ---------- */
+@media (max-width: 560px) {
+  .topbar-in { padding: 8px 14px 8px 26px; gap: 8px; }
+  .brand { font-size: 1.15rem; }
+  .brand > span:not(.brand-mark) { display: none; }
+  .nav { margin-left: 0; flex-wrap: nowrap; }
+  .nav a { white-space: nowrap; padding: 4px 10px; font-size: 0.95rem; }
+  .who { gap: 6px; }
+  .who .name { display: none; }
+  .btn.icon { min-height: 36px; padding: 3px 8px; }
+  .q-text { font-size: 1.15rem; }
+  .welcome { padding-top: 22px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* bảng xuất điểm: giữ mỗi ô trên một dòng, riêng tên bài được xuống dòng */
+table.data.export td { white-space: nowrap; }
+table.data.export td.wrap { white-space: normal; min-width: 240px; }

@@ -14,10 +14,10 @@ export default async function Home() {
       <div className="login-grid">
         <section className="hero">
           <h1 className="hero-title">
-            Học <span className="scribble">Toán 4</span> mỗi ngày, thêm một bài là thêm một sao
+            Trở thành <span className="scribble">Siêu Sao Toán 4</span> sau từng bài làm
           </h1>
-          <p>73 bài trong sách giáo khoa, mỗi lần làm 10 câu. Làm đúng được khen, làm sai được động viên.</p>
-          <div className="hero-note">Ai được điểm cao nhất sẽ lên đầu bảng xếp hạng của cả lớp!</div>
+          <p>73 bài trong sách giáo khoa, mỗi lần làm 10 câu. Làm đúng được khen, làm sai được động viên, điểm cao nhất lên đầu bảng xếp hạng.</p>
+          <div className="hero-note">Mỗi bài làm xong là thêm sao, thêm điểm cho em!</div>
         </section>
         <LoginPanel />
       </div>

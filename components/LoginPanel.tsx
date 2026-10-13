@@ -10,6 +10,8 @@ export function LoginPanel() {
   const router = useRouter();
   const [mode, setMode] = useState<"student" | "admin">("student");
   const [name, setName] = useState("");
+  const [cls, setCls] = useState("");
+  const [school, setSchool] = useState("");
   const [d, setD] = useState("");
   const [m, setM] = useState("");
   const [y, setY] = useState("");
@@ -45,7 +47,7 @@ export function LoginPanel() {
     unlockAudio();
     if (!d || !m || !y) return setError("Em chọn đủ ngày, tháng, năm sinh nhé.");
     const dob = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-    if (await post("/api/auth/student", { name, dob })) {
+    if (await post("/api/auth/student", { name, dob, className: cls, school })) {
       router.push("/hoc");
       router.refresh();
     }
@@ -76,6 +78,16 @@ export function LoginPanel() {
             <label htmlFor="name">Họ và tên của em</label>
             <input id="name" className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="Ví dụ: Nguyễn Minh An" />
           </div>
+          <div className="school-row">
+            <div className="field">
+              <label htmlFor="cls">Lớp</label>
+              <input id="cls" className="input" value={cls} onChange={(e) => setCls(e.target.value)} autoComplete="off" placeholder="4A" maxLength={20} />
+            </div>
+            <div className="field">
+              <label htmlFor="school">Trường</label>
+              <input id="school" className="input" value={school} onChange={(e) => setSchool(e.target.value)} autoComplete="off" placeholder="Tiểu học Lê Lợi" maxLength={80} />
+            </div>
+          </div>
           <div className="field">
             <span className="label" id="dob-l">Ngày sinh của em</span>
             <div className="dob" role="group" aria-labelledby="dob-l">
@@ -101,7 +113,7 @@ export function LoginPanel() {
           </div>
           {error && <p className="err" role="alert">{error}</p>}
           <button className="btn blue" type="submit" disabled={busy}>{busy ? "Đang vào lớp…" : "Vào học thôi"}</button>
-          <p className="note">Lần đầu, hệ thống tự tạo tài khoản cho em. Những lần sau em chỉ cần nhập đúng tên và ngày sinh là vào lại được, điểm cũ vẫn còn nguyên.</p>
+          <p className="note">Lần đầu em điền đủ tên, lớp, trường và ngày sinh để tạo tài khoản. Những lần sau chỉ cần nhập đúng tên và ngày sinh là vào lại được, điểm cũ vẫn còn nguyên.</p>
         </form>
       ) : (
         <form onSubmit={submitAdmin} className="field" style={{ gap: 16 }}>

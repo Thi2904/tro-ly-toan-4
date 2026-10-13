@@ -1,7 +1,15 @@
 import { neon } from "@neondatabase/serverless";
 import { nameKey, displayName } from "./identity";
 
-export type Student = { id: number; name: string; dob: string; createdAt: string; lastLogin: string | null };
+export type Student = {
+  id: number;
+  name: string;
+  dob: string;
+  className: string | null;
+  school: string | null;
+  createdAt: string;
+  lastLogin: string | null;
+};
 
 export type StoredQ = {
   q: string;
@@ -33,6 +41,8 @@ export type AdminStudentRow = {
   id: number;
   name: string;
   dob: string;
+  className: string | null;
+  school: string | null;
   createdAt: string;
   lastLogin: string | null;
   attempts: number;
@@ -44,6 +54,9 @@ export type AttemptRow = {
   id: number;
   studentId: number;
   studentName: string;
+  dob: string;
+  className: string | null;
+  school: string | null;
   lessonId: number;
   correct: number;
   total: number;
@@ -53,9 +66,23 @@ export type AttemptRow = {
   seconds: number | null;
 };
 
+export type AttemptFilter = {
+  studentId?: number;
+  lessonId?: number;
+  className?: string;
+  school?: string;
+  /** Mỗi học sinh chỉ lấy một lượt (điểm cao nhất, bằng điểm thì lượt nhanh hơn) cho mỗi bài. */
+  bestOnly?: boolean;
+  limit?: number;
+};
+
+export type LoginResult =
+  | { student: Student; created: boolean; needProfile?: false }
+  | { student?: undefined; created: false; needProfile: true };
+
 export interface Store {
   readonly kind: "postgres" | "memory";
-  loginStudent(name: string, dob: string): Promise<{ student: Student; created: boolean }>;
+  loginStudent(name: string, dob: string, profile: { className?: string; school?: string }): Promise<LoginResult>;
   getStudent(id: number): Promise<Student | null>;
   createAttempt(studentId: number, lessonId: number, questions: StoredQ[]): Promise<Attempt>;
   getAttempt(id: number): Promise<Attempt | null>;
@@ -64,13 +91,39 @@ export interface Store {
   progress(studentId: number): Promise<LessonProgress[]>;
   leaderboard(lessonId?: number): Promise<BoardRow[]>;
   adminStudents(): Promise<AdminStudentRow[]>;
-  adminAttempts(opts: { studentId?: number; lessonId?: number; limit?: number }): Promise<AttemptRow[]>;
+  adminAttempts(opts: AttemptFilter): Promise<AttemptRow[]>;
   deleteAttempt(id: number): Promise<void>;
   deleteStudent(id: number): Promise<void>;
   overview(): Promise<{ students: number; attempts: number; avgPoints: number; today: number }>;
 }
 
 const secs = (a: string, b: string | null) => (b ? Math.max(0, Math.round((+new Date(b) - +new Date(a)) / 1000)) : null);
+
+const vi = (a: string, b: string) => a.localeCompare(b, "vi");
+
+/** Lọc theo lớp/trường, lấy lượt tốt nhất rồi sắp xếp: bài → lớp → họ tên. */
+function shapeAttempts(rows: AttemptRow[], f: AttemptFilter): AttemptRow[] {
+  let out = rows;
+  if (f.className) out = out.filter((r) => (r.className ?? "") === f.className);
+  if (f.school) out = out.filter((r) => (r.school ?? "") === f.school);
+  if (f.bestOnly) {
+    const best = new Map<string, AttemptRow>();
+    for (const r of out) {
+      const k = `${r.studentId}:${r.lessonId}`;
+      const cur = best.get(k);
+      if (!cur || r.points > cur.points || (r.points === cur.points && (r.seconds ?? 1e9) < (cur.seconds ?? 1e9))) best.set(k, r);
+    }
+    out = [...best.values()];
+  }
+  out = [...out].sort(
+    (a, b) =>
+      a.lessonId - b.lessonId ||
+      vi(a.className ?? "", b.className ?? "") ||
+      vi(a.studentName, b.studentName) ||
+      (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""),
+  );
+  return out.slice(0, f.limit ?? 5000);
+}
 
 /* ------------------------------------------------------------------ Postgres */
 
@@ -89,6 +142,8 @@ function pgStore(url: string): Store {
         last_login TIMESTAMPTZ,
         UNIQUE (name_key, dob)
       )`;
+      await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS class_name TEXT`;
+      await sql`ALTER TABLE students ADD COLUMN IF NOT EXISTS school_name TEXT`;
       await sql`CREATE TABLE IF NOT EXISTS attempts (
         id SERIAL PRIMARY KEY,
         student_id INT NOT NULL REFERENCES students(id) ON DELETE CASCADE,
@@ -111,6 +166,8 @@ function pgStore(url: string): Store {
     id: r.id,
     name: r.name,
     dob: typeof r.dob === "string" ? r.dob.slice(0, 10) : new Date(r.dob).toISOString().slice(0, 10),
+    className: r.class_name ?? null,
+    school: r.school_name ?? null,
     createdAt: new Date(r.created_at).toISOString(),
     lastLogin: r.last_login ? new Date(r.last_login).toISOString() : null,
   });
@@ -132,22 +189,30 @@ function pgStore(url: string): Store {
 
   return {
     kind: "postgres",
-    async loginStudent(name, dob) {
+    async loginStudent(name, dob, profile) {
       await init();
       const key = nameKey(name);
-      const found = await sql`SELECT id, name, dob::text AS dob, created_at, last_login FROM students WHERE name_key = ${key} AND dob = ${dob}`;
+      const cls = profile.className ?? "";
+      const sch = profile.school ?? "";
+      const found = await sql`SELECT id FROM students WHERE name_key = ${key} AND dob = ${dob}`;
       if (found.length) {
-        const upd = await sql`UPDATE students SET last_login = now() WHERE id = ${found[0].id} RETURNING id, name, dob::text AS dob, created_at, last_login`;
+        const upd = await sql`UPDATE students SET last_login = now(),
+            class_name = COALESCE(NULLIF(${cls}, ''), class_name),
+            school_name = COALESCE(NULLIF(${sch}, ''), school_name)
+          WHERE id = ${found[0].id}
+          RETURNING id, name, dob::text AS dob, class_name, school_name, created_at, last_login`;
         return { student: toStudent(upd[0]), created: false };
       }
-      const ins = await sql`INSERT INTO students (name, name_key, dob, last_login) VALUES (${displayName(name)}, ${key}, ${dob}, now())
+      if (!cls || !sch) return { created: false, needProfile: true };
+      const ins = await sql`INSERT INTO students (name, name_key, dob, class_name, school_name, last_login)
+        VALUES (${displayName(name)}, ${key}, ${dob}, ${cls}, ${sch}, now())
         ON CONFLICT (name_key, dob) DO UPDATE SET last_login = now()
-        RETURNING id, name, dob::text AS dob, created_at, last_login, (xmax = 0) AS inserted`;
+        RETURNING id, name, dob::text AS dob, class_name, school_name, created_at, last_login, (xmax = 0) AS inserted`;
       return { student: toStudent(ins[0]), created: !!ins[0].inserted };
     },
     async getStudent(id) {
       await init();
-      const r = await sql`SELECT id, name, dob::text AS dob, created_at, last_login FROM students WHERE id = ${id}`;
+      const r = await sql`SELECT id, name, dob::text AS dob, class_name, school_name, created_at, last_login FROM students WHERE id = ${id}`;
       return r.length ? toStudent(r[0]) : null;
     },
     async createAttempt(studentId, lessonId, questions) {
@@ -214,7 +279,7 @@ function pgStore(url: string): Store {
         ), cnt AS (
           SELECT student_id, COUNT(*)::int AS attempts, AVG(points) AS avg FROM attempts WHERE status = 'done' GROUP BY student_id
         )
-        SELECT s.id, s.name, s.dob::text AS dob, s.created_at, s.last_login,
+        SELECT s.id, s.name, s.dob::text AS dob, s.class_name, s.school_name, s.created_at, s.last_login,
           COALESCE(c.attempts, 0) AS attempts, COALESCE(a.lessons, 0) AS lessons,
           COALESCE(a.total, 0) AS total, COALESCE(c.avg, 0) AS avg
         FROM students s LEFT JOIN agg a ON a.student_id = s.id LEFT JOIN cnt c ON c.student_id = s.id
@@ -223,6 +288,8 @@ function pgStore(url: string): Store {
         id: x.id,
         name: x.name,
         dob: String(x.dob).slice(0, 10),
+        className: x.class_name ?? null,
+        school: x.school_name ?? null,
         createdAt: new Date(x.created_at).toISOString(),
         lastLogin: x.last_login ? new Date(x.last_login).toISOString() : null,
         attempts: x.attempts,
@@ -231,26 +298,37 @@ function pgStore(url: string): Store {
         avg: Math.round(Number(x.avg) * 10) / 10,
       }));
     },
-    async adminAttempts({ studentId, lessonId, limit = 300 }) {
+    async adminAttempts(f) {
       await init();
-      const r = await sql`SELECT a.id, a.student_id, s.name, a.lesson_id, a.correct, a.total, a.points, a.started_at, a.finished_at
+      const sid = f.studentId ?? null;
+      const lid = f.lessonId ?? null;
+      const r = await sql`SELECT a.id, a.student_id, s.name, s.dob::text AS dob, s.class_name, s.school_name,
+          a.lesson_id, a.correct, a.total, a.points, a.started_at, a.finished_at
         FROM attempts a JOIN students s ON s.id = a.student_id
         WHERE a.status = 'done'
-          AND (${studentId ?? null}::int IS NULL OR a.student_id = ${studentId ?? null}::int)
-          AND (${lessonId ?? null}::int IS NULL OR a.lesson_id = ${lessonId ?? null}::int)
-        ORDER BY a.finished_at DESC LIMIT ${limit}`;
-      return r.map((x: any) => ({
-        id: x.id,
-        studentId: x.student_id,
-        studentName: x.name,
-        lessonId: x.lesson_id,
-        correct: x.correct,
-        total: x.total,
-        points: Number(x.points),
-        startedAt: new Date(x.started_at).toISOString(),
-        finishedAt: x.finished_at ? new Date(x.finished_at).toISOString() : null,
-        seconds: secs(new Date(x.started_at).toISOString(), x.finished_at ? new Date(x.finished_at).toISOString() : null),
-      }));
+          AND (${sid}::int IS NULL OR a.student_id = ${sid}::int)
+          AND (${lid}::int IS NULL OR a.lesson_id = ${lid}::int)
+        ORDER BY a.finished_at DESC LIMIT 20000`;
+      const rows: AttemptRow[] = r.map((x: any) => {
+        const started = new Date(x.started_at).toISOString();
+        const finished = x.finished_at ? new Date(x.finished_at).toISOString() : null;
+        return {
+          id: x.id,
+          studentId: x.student_id,
+          studentName: x.name,
+          dob: String(x.dob).slice(0, 10),
+          className: x.class_name ?? null,
+          school: x.school_name ?? null,
+          lessonId: x.lesson_id,
+          correct: x.correct,
+          total: x.total,
+          points: Number(x.points),
+          startedAt: started,
+          finishedAt: finished,
+          seconds: secs(started, finished),
+        };
+      });
+      return shapeAttempts(rows, f);
     },
     async deleteAttempt(id) {
       await init();
@@ -291,15 +369,20 @@ function memoryStore(): Store {
   };
   return {
     kind: "memory",
-    async loginStudent(name, dob) {
+    async loginStudent(name, dob, profile) {
       const key = nameKey(name);
+      const cls = profile.className ?? "";
+      const sch = profile.school ?? "";
       let s = db.students.find((x) => x.key === key && x.dob === dob);
       const now = new Date().toISOString();
       if (s) {
         s.lastLogin = now;
+        if (cls) s.className = cls;
+        if (sch) s.school = sch;
         return { student: s, created: false };
       }
-      s = { id: db.seq++, name: displayName(name), key, dob, createdAt: now, lastLogin: now };
+      if (!cls || !sch) return { created: false, needProfile: true };
+      s = { id: db.seq++, name: displayName(name), key, dob, className: cls, school: sch, createdAt: now, lastLogin: now };
       db.students.push(s);
       return { student: s, created: true };
     },
@@ -387,6 +470,8 @@ function memoryStore(): Store {
             id: s.id,
             name: s.name,
             dob: s.dob,
+            className: s.className,
+            school: s.school,
             createdAt: s.createdAt,
             lastLogin: s.lastLogin,
             attempts: mine.length,
@@ -397,23 +482,28 @@ function memoryStore(): Store {
         })
         .sort((a, b) => a.name.localeCompare(b.name, "vi"));
     },
-    async adminAttempts({ studentId, lessonId, limit = 300 }) {
-      return done()
-        .filter((a) => (!studentId || a.studentId === studentId) && (!lessonId || a.lessonId === lessonId))
-        .sort((a, b) => (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""))
-        .slice(0, limit)
-        .map((a) => ({
-          id: a.id,
-          studentId: a.studentId,
-          studentName: db.students.find((s) => s.id === a.studentId)?.name ?? "?",
-          lessonId: a.lessonId,
-          correct: a.correct,
-          total: a.total,
-          points: a.points,
-          startedAt: a.startedAt,
-          finishedAt: a.finishedAt,
-          seconds: secs(a.startedAt, a.finishedAt),
-        }));
+    async adminAttempts(f) {
+      const rows: AttemptRow[] = done()
+        .filter((a) => (!f.studentId || a.studentId === f.studentId) && (!f.lessonId || a.lessonId === f.lessonId))
+        .map((a) => {
+          const s = db.students.find((x) => x.id === a.studentId);
+          return {
+            id: a.id,
+            studentId: a.studentId,
+            studentName: s?.name ?? "?",
+            dob: s?.dob ?? "",
+            className: s?.className ?? null,
+            school: s?.school ?? null,
+            lessonId: a.lessonId,
+            correct: a.correct,
+            total: a.total,
+            points: a.points,
+            startedAt: a.startedAt,
+            finishedAt: a.finishedAt,
+            seconds: secs(a.startedAt, a.finishedAt),
+          };
+        });
+      return shapeAttempts(rows, f);
     },
     async deleteAttempt(id) {
       db.attempts = db.attempts.filter((a) => a.id !== id);

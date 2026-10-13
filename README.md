@@ -1,12 +1,12 @@
-# Trợ lý học tập Toán 4
+# Siêu Sao Toán 4
 
-Ứng dụng luyện tập Toán lớp 4 (sách Kết nối tri thức với cuộc sống, 2 tập, 73 bài).
+**Siêu Sao Toán 4** – ứng dụng luyện tập Toán lớp 4 (sách Kết nối tri thức với cuộc sống, 2 tập, 73 bài).
 
-- Học sinh nhập họ tên và ngày sinh để vào học. Lần sau nhập đúng lại là vào lại tài khoản cũ, không tạo mới.
+- Học sinh nhập họ tên, lớp, trường và ngày sinh để vào học lần đầu. Lần sau nhập đúng lại tên và ngày sinh là vào lại tài khoản cũ, không tạo mới.
 - Mỗi lần làm bài gồm 10 câu chọn ngẫu nhiên từ ngân hàng câu hỏi của bài (tổng hơn 1 100 câu).
 - Làm đúng được khen, làm sai được động viên bằng giọng đọc tiếng Việt của trình duyệt kèm hiệu ứng âm thanh.
 - Bảng xếp hạng cho học sinh và giáo viên cùng xem.
-- Giáo viên quản lý điểm tại mục "Giáo viên" ở trang đăng nhập.
+- Giáo viên quản lý điểm tại mục "Giáo viên" ở trang đăng nhập, lọc theo bài, lớp, trường và xuất file Excel (.xlsx), có thể tách mỗi bài một trang tính.
 
 ## Công nghệ
 

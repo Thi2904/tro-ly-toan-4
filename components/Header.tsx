@@ -33,8 +33,8 @@ export function Header({ role, name }: { role: "student" | "admin"; name?: strin
     <header className="topbar">
       <div className="topbar-in">
         <Link href={role === "admin" ? "/admin" : "/hoc"} className="brand">
-          <span className="brand-mark">Toán 4</span>
-          <span>Trợ lý học tập</span>
+          <span className="brand-mark">Siêu Sao</span>
+          <span>Toán 4</span>
         </Link>
         <nav className="nav" aria-label="Điều hướng chính">
           {items.map((i) => (
