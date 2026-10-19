@@ -9,6 +9,7 @@ export type Lesson = {
   volume: 1 | 2; // tập
   intro: string; // lời nhắc kiến thức ngắn
   questions: Question[];
+  adv: Question[]; // phần nâng cao (tuỳ chọn)
 };
 
 // Câu hỏi gửi cho học sinh (không chứa đáp án)

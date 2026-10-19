@@ -13,8 +13,9 @@ type Result = { correct: number; total: number; points: number; review: Review[]
 
 const KEYS = ["A", "B", "C", "D", "E", "F"];
 
-export function Quiz({ lessonId, title, intro, hasQuestions }: { lessonId: number; title: string; intro: string; hasQuestions: number }) {
+export function Quiz({ lessonId, title, intro, hasQuestions, hasAdv }: { lessonId: number; title: string; intro: string; hasQuestions: number; hasAdv: number }) {
   const [phase, setPhase] = useState<"intro" | "loading" | "quiz" | "result">("intro");
+  const [adv, setAdv] = useState(false);
   const [attemptId, setAttemptId] = useState(0);
   const [qs, setQs] = useState<PublicQuestion[]>([]);
   const [i, setI] = useState(0);
@@ -31,12 +32,13 @@ export function Quiz({ lessonId, title, intro, hasQuestions }: { lessonId: numbe
     if (phase === "quiz" && qs[i]?.t === "num" && !fb) inputRef.current?.focus();
   }, [phase, i, fb, qs]);
 
-  async function start() {
+  async function start(advanced = false) {
     unlockAudio();
+    setAdv(advanced);
     setPhase("loading");
     setError("");
     try {
-      const r = await fetch("/api/quiz/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ lessonId }) });
+      const r = await fetch("/api/quiz/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ lessonId, advanced }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Không bắt đầu được bài.");
       setAttemptId(d.attemptId);
@@ -119,10 +121,19 @@ export function Quiz({ lessonId, title, intro, hasQuestions }: { lessonId: numbe
           </p>
           {error && <p className="err" role="alert" style={{ marginTop: 12 }}>{error}</p>}
           <div className="row" style={{ marginTop: 18 }}>
-            <button className="btn blue" onClick={start} disabled={phase === "loading"}>
+            <button className="btn blue" onClick={() => start()} disabled={phase === "loading"}>
               {phase === "loading" ? "Đang chuẩn bị…" : "Bắt đầu làm bài"}
             </button>
           </div>
+          {hasAdv > 0 && (
+            <div className="warn" style={{ marginTop: 22 }}>
+              <b>🚀 Thử thách nâng cao (không bắt buộc): </b>
+              5 câu khó hơn dành cho bạn nào thích suy nghĩ. Điểm thử thách được cộng thêm vào tổng điểm của em.
+              <div className="row" style={{ marginTop: 12 }}>
+                <button className="btn white" onClick={() => start(true)} disabled={phase === "loading"}>Làm thử thách nâng cao</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -153,7 +164,7 @@ export function Quiz({ lessonId, title, intro, hasQuestions }: { lessonId: numbe
               ))}
             </div>
           )}
-          <h2>Bài {lessonId} · {title}</h2>
+          <h2>Bài {lessonId} · {title}{adv ? " (Nâng cao)" : ""}</h2>
           <div className="stars-big" aria-label={`${stars} trên 3 sao`}>
             {[0, 1, 2].map((s) => (
               <span key={s} className={s < stars ? "" : "off"}>⭐</span>
@@ -163,9 +174,14 @@ export function Quiz({ lessonId, title, intro, hasQuestions }: { lessonId: numbe
           <p style={{ marginTop: 6, fontWeight: 700 }}>Đúng {result.correct}/{result.total} câu</p>
           <p style={{ marginTop: 8 }}>{msg}</p>
           <div className="row" style={{ justifyContent: "center", marginTop: 20 }}>
-            <button className="btn blue" onClick={start}>Làm lại bài này</button>
+            <button className="btn blue" onClick={() => start(adv)}>Làm lại {adv ? "thử thách này" : "bài này"}</button>
+            {adv ? (
+              <button className="btn white" onClick={() => setPhase("intro")}>Về bài {lessonId}</button>
+            ) : (
+              hasAdv > 0 && <button className="btn white" onClick={() => start(true)}>🚀 Thử thách nâng cao</button>
+            )}
             <Link className="btn white" href="/hoc">Chọn bài khác</Link>
-            <Link className="btn white" href={`/xep-hang?lesson=${lessonId}`}>Xem xếp hạng</Link>
+            <Link className="btn white" href={adv ? "/xep-hang" : `/xep-hang?lesson=${lessonId}`}>Xem xếp hạng</Link>
           </div>
 
           <div className="review">
@@ -193,7 +209,7 @@ export function Quiz({ lessonId, title, intro, hasQuestions }: { lessonId: numbe
       <Link className="crumb btn white small" href="/hoc" aria-label="Thoát bài, về danh sách">← Thoát</Link>
       <div className="card" style={{ marginTop: 16 }}>
         <div className="row" style={{ justifyContent: "space-between" }}>
-          <b>Bài {lessonId}</b>
+          <b>Bài {lessonId}{adv ? " · 🚀 Nâng cao" : ""}</b>
           <b>Câu {i + 1}/{qs.length}</b>
         </div>
         <div className="dots" aria-hidden>

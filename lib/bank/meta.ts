@@ -14,6 +14,12 @@ export const TOPICS: Record<number, string> = {
   13: "Ôn tập cuối năm",
 };
 
+/** Lượt làm phần nâng cao được lưu với lessonId = số bài + ADV. */
+export const ADV = 100;
+export const lessonNo = (id: number) => (id > ADV ? id - ADV : id);
+export const lessonTitle = (id: number) =>
+  (LESSON_META.find((l) => l[0] === lessonNo(id))?.[2] ?? "") + (id > ADV ? " (Nâng cao)" : "");
+
 // [id, chủ đề, tên bài]
 export const LESSON_META: [number, number, string][] = [
   [1, 1, "Ôn tập các số đến 100 000"],

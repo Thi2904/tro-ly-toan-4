@@ -263,7 +263,7 @@ function pgStore(url: string): Store {
       const r = await sql`WITH best AS (
           SELECT student_id, lesson_id, MAX(points) AS p FROM attempts WHERE status = 'done' GROUP BY student_id, lesson_id
         )
-        SELECT s.id, s.name, SUM(b.p) AS total, COUNT(*)::int AS lessons
+        SELECT s.id, s.name, SUM(b.p) AS total, (COUNT(*) FILTER (WHERE b.lesson_id <= 100))::int AS lessons
         FROM best b JOIN students s ON s.id = b.student_id
         GROUP BY s.id, s.name, s.created_at
         ORDER BY total DESC, lessons DESC, s.created_at ASC
@@ -275,7 +275,7 @@ function pgStore(url: string): Store {
       const r = await sql`WITH best AS (
           SELECT student_id, lesson_id, MAX(points) AS p FROM attempts WHERE status = 'done' GROUP BY student_id, lesson_id
         ), agg AS (
-          SELECT student_id, SUM(p) AS total, COUNT(*)::int AS lessons FROM best GROUP BY student_id
+          SELECT student_id, SUM(p) AS total, (COUNT(*) FILTER (WHERE lesson_id <= 100))::int AS lessons FROM best GROUP BY student_id
         ), cnt AS (
           SELECT student_id, COUNT(*)::int AS attempts, AVG(points) AS avg FROM attempts WHERE status = 'done' GROUP BY student_id
         )
@@ -452,7 +452,7 @@ function memoryStore(): Store {
         const sid = +k.split(":")[0];
         const c = per.get(sid) ?? { points: 0, lessons: 0 };
         c.points += p;
-        c.lessons++;
+        if (+k.split(":")[1] <= 100) c.lessons++;
         per.set(sid, c);
       }
       return [...per.entries()]

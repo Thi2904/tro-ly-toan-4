@@ -3,7 +3,8 @@
 **Siêu Sao Toán 4** – ứng dụng luyện tập Toán lớp 4 (sách Kết nối tri thức với cuộc sống, 2 tập, 73 bài).
 
 - Học sinh nhập họ tên, lớp, trường và ngày sinh để vào học lần đầu. Lần sau nhập đúng lại tên và ngày sinh là vào lại tài khoản cũ, không tạo mới.
-- Mỗi lần làm bài gồm 10 câu chọn ngẫu nhiên từ ngân hàng câu hỏi của bài (tổng hơn 1 100 câu).
+- Mỗi lần làm bài gồm 10 câu chọn ngẫu nhiên từ ngân hàng câu hỏi của bài (tổng khoảng 970 câu). Đề không lấy nguyên bài tập SGK mà ra dạng tương tự, khó hơn một chút.
+- Mỗi bài có thêm "Thử thách nâng cao" (không bắt buộc): 5 câu chọn ngẫu nhiên từ khoảng 380 câu nâng cao. Điểm thử thách được lưu riêng (lessonId = số bài + 100), cộng vào tổng điểm xếp hạng nhưng không tính vào số bài đã làm.
 - Làm đúng được khen, làm sai được động viên bằng giọng đọc tiếng Việt của trình duyệt kèm hiệu ứng âm thanh.
 - Bảng xếp hạng cho học sinh và giáo viên cùng xem.
 - Giáo viên quản lý điểm tại mục "Giáo viên" ở trang đăng nhập, lọc theo bài, lớp, trường và xuất file Excel (.xlsx), có thể tách mỗi bài một trang tính.
@@ -33,5 +34,5 @@ Không có `DATABASE_URL` thì ứng dụng dùng bộ nhớ tạm (mất dữ l
 
 ## Ngân hàng câu hỏi
 
-Nằm trong `lib/bank/` theo từng chương. Kiểm tra cấu trúc: `npm run check:bank`.
+Nằm trong `lib/bank/` theo từng chương; mỗi bài có `questions` (phần chính) và `adv` (phần nâng cao). Kiểm tra cấu trúc và tự tính lại các phép tính dạng "… = ?": `npm run check:bank`.
 Đề có thể kèm hình: `[[angle:60]]`, `[[clock:3:00]]`, `[[lines:perp]]`, `[[shape:rhombus]]`, `[[frac:2/6]]`, `[[bar:Tiêu đề|A=1,B=2|đơn vị]]`; phân số viết `{a/b}`.

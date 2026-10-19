@@ -16,7 +16,7 @@ import { ch11 } from "./ch11";
 import { ch12 } from "./ch12";
 import { ch13 } from "./ch13";
 
-type Raw = Record<number, { intro: string; questions: Question[] }>;
+type Raw = Record<number, { intro: string; questions: Question[]; adv: Question[] }>;
 
 const RAW: Raw = {
   ...ch1, ...ch2, ...ch3, ...ch4, ...ch5, ...ch6, ...ch7,
@@ -26,7 +26,7 @@ const RAW: Raw = {
 export const LESSONS: Lesson[] = LESSON_META.map(([id, topic, title]) => {
   const raw = RAW[id];
   if (!raw) throw new Error(`Thiếu nội dung bài ${id}`);
-  return { id, topic, title, volume: id <= 37 ? 1 : 2, intro: raw.intro, questions: raw.questions };
+  return { id, topic, title, volume: id <= 37 ? 1 : 2, intro: raw.intro, questions: raw.questions, adv: raw.adv };
 });
 
 export const LESSON_BY_ID = new Map(LESSONS.map((l) => [l.id, l]));

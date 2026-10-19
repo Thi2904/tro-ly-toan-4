@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { LESSON_BY_ID } from "./bank";
+import { ADV, lessonNo, lessonTitle } from "./bank/meta";
 import type { AttemptRow } from "./store";
 
 const HEADERS = ["STT", "Họ tên", "Ngày sinh", "Lớp", "Trường", "Bài", "Tên bài", "Số câu đúng", "Tổng số câu", "Điểm", "Thời gian", "Nộp"];
@@ -63,7 +63,6 @@ function addSheet(wb: ExcelJS.Workbook, sheetName: string, title: string, subtit
   head.height = 24;
 
   rows.forEach((r, idx) => {
-    const lesson = LESSON_BY_ID.get(r.lessonId);
     const row = ws.getRow(4 + idx);
     row.height = 21;
     const values: (string | number | Date | null)[] = [
@@ -72,8 +71,8 @@ function addSheet(wb: ExcelJS.Workbook, sheetName: string, title: string, subtit
       dobDate(r.dob),
       r.className ?? "",
       r.school ?? "",
-      r.lessonId,
-      lesson?.title ?? "",
+      lessonNo(r.lessonId),
+      lessonTitle(r.lessonId),
       r.correct,
       r.total,
       r.points,
@@ -124,14 +123,13 @@ export async function buildWorkbook(rows: AttemptRow[], o: ExportOptions): Promi
   const subtitle = `${filters.join("  ·  ")}  ·  Xuất lúc ${vnNowText()}`;
 
   if (o.lessonId) {
-    const l = LESSON_BY_ID.get(o.lessonId);
-    addSheet(wb, `Bài ${o.lessonId}`, `KẾT QUẢ LÀM BÀI – Bài ${o.lessonId}. ${l?.title ?? ""}`, subtitle, rows);
+    addSheet(wb, `Bài ${o.lessonId}`, `KẾT QUẢ LÀM BÀI – Bài ${o.lessonId}. ${lessonTitle(o.lessonId)}`, subtitle, rows);
   } else if (o.splitByLesson) {
     const ids = [...new Set(rows.map((r) => r.lessonId))].sort((a, b) => a - b);
     if (ids.length === 0) addSheet(wb, "Kết quả", "KẾT QUẢ LÀM BÀI", subtitle, []);
     for (const id of ids) {
-      const l = LESSON_BY_ID.get(id);
-      addSheet(wb, `Bài ${id}`, `KẾT QUẢ LÀM BÀI – Bài ${id}. ${l?.title ?? ""}`, subtitle, rows.filter((r) => r.lessonId === id));
+      const name = id > ADV ? `Bài ${lessonNo(id)} NC` : `Bài ${id}`;
+      addSheet(wb, name, `KẾT QUẢ LÀM BÀI – Bài ${lessonNo(id)}. ${lessonTitle(id)}`, subtitle, rows.filter((r) => r.lessonId === id));
     }
   } else {
     addSheet(wb, "Tất cả các bài", "KẾT QUẢ LÀM BÀI – Tất cả các bài", subtitle, rows);

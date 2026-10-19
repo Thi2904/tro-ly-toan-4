@@ -18,7 +18,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
     <>
       <Header role="student" name={s.name} />
       <main className="wrap">
-        <Quiz lessonId={lesson.id} title={lesson.title} intro={lesson.intro} hasQuestions={lesson.questions.length} />
+        <Quiz lessonId={lesson.id} title={lesson.title} intro={lesson.intro} hasQuestions={lesson.questions.length} hasAdv={lesson.adv.length} />
       </main>
     </>
   );

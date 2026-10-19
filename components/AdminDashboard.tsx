@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { LESSON_META } from "@/lib/bank/meta";
+import { ADV, LESSON_META, lessonNo, lessonTitle } from "@/lib/bank/meta";
 import { Inline } from "./Rich";
 
 type Overview = { students: number; attempts: number; avgPoints: number; today: number; db: "postgres" | "memory" };
@@ -20,7 +20,6 @@ const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("vi-VN"
 const dobFmt = (iso: string) => iso.slice(0, 10).split("-").reverse().join("/");
 const dur = (s: number | null) => (s === null ? "–" : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
 const pillCls = (p: number) => (p >= 8 ? "hi" : p >= 5 ? "mid" : "lo");
-const lessonTitle = (id: number) => LESSON_META.find((l) => l[0] === id)?.[2] ?? "";
 
 async function api<T = any>(url: string, init?: RequestInit): Promise<T> {
   const r = await fetch(url, init);
@@ -130,7 +129,7 @@ export function AdminDashboard() {
   }
 
   async function delAttempt(a: Attempt) {
-    if (!confirm(`Xoá lượt làm Bài ${a.lessonId} của ${a.studentName} (${fmt(a.points)} điểm)?`)) return;
+    if (!confirm(`Xoá lượt làm Bài ${lessonNo(a.lessonId)}${a.lessonId > ADV ? " (Nâng cao)" : ""} của ${a.studentName} (${fmt(a.points)} điểm)?`)) return;
     await api("/api/admin/attempts", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: a.id }) });
     setOpen(null);
     await Promise.all([loadBase(), loadAttempts()]);
@@ -166,7 +165,7 @@ export function AdminDashboard() {
                 <tr className="click" onClick={() => toggleDetail(a.id)}>
                   <td>{a.studentName}</td>
                   <td>{a.className ?? "–"}</td>
-                  <td>Bài {a.lessonId}. {lessonTitle(a.lessonId)}</td>
+                  <td>Bài {lessonNo(a.lessonId)}. {lessonTitle(a.lessonId)}</td>
                   <td>{a.correct}/{a.total}</td>
                   <td><span className={`pill ${pillCls(a.points)}`}>{fmt(a.points)}</span></td>
                   <td>{dur(a.seconds)}</td>
@@ -330,7 +329,7 @@ export function AdminDashboard() {
                     <td>{dobFmt(r.dob)}</td>
                     <td>{r.className ?? ""}</td>
                     <td>{r.school ?? ""}</td>
-                    <td>{r.lessonId}</td>
+                    <td>{lessonNo(r.lessonId)}</td>
                     <td className="wrap">{lessonTitle(r.lessonId)}</td>
                     <td>{r.correct}</td>
                     <td>{r.total}</td>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { LESSON_META, TOPICS } from "@/lib/bank/meta";
+import { ADV, LESSON_META, TOPICS } from "@/lib/bank/meta";
 
 export type Prog = { lessonId: number; best: number; attempts: number };
 
@@ -22,9 +22,11 @@ export function Stars({ n }: { n: number }) {
 }
 
 export function StudentHome({ name, progress, rank, totalStudents }: { name: string; progress: Prog[]; rank: number | null; totalStudents: number }) {
-  const [vol, setVol] = useState<1 | 2>(progress.some((p) => p.lessonId > 37) && !progress.some((p) => p.lessonId <= 37) ? 2 : 1);
-  const byId = new Map(progress.map((p) => [p.lessonId, p]));
-  const doneCount = progress.length;
+  const main = progress.filter((p) => p.lessonId <= ADV);
+  const [vol, setVol] = useState<1 | 2>(main.some((p) => p.lessonId > 37) && !main.some((p) => p.lessonId <= 37) ? 2 : 1);
+  const byId = new Map(main.map((p) => [p.lessonId, p]));
+  const advBy = new Map(progress.filter((p) => p.lessonId > ADV).map((p) => [p.lessonId - ADV, p]));
+  const doneCount = main.length;
   const total = progress.reduce((s, p) => s + p.best, 0);
   const first = name.split(" ").slice(-1)[0];
 
@@ -70,6 +72,7 @@ export function StudentHome({ name, progress, rank, totalStudents }: { name: str
               .filter((l) => l[1] === t)
               .map(([id, , title]) => {
                 const p = byId.get(id);
+                const a = advBy.get(id);
                 return (
                   <Link key={id} href={`/hoc/bai/${id}`} className={`lesson${p ? " done" : ""}`}>
                     <span className="no">{id}</span>
@@ -82,6 +85,7 @@ export function StudentHome({ name, progress, rank, totalStudents }: { name: str
                       ) : (
                         "Chưa làm"
                       )}
+                      {a && <> · 🚀 {fmt(a.best)}</>}
                     </span>
                   </Link>
                 );
